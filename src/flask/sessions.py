@@ -197,7 +197,7 @@ class SessionInterface:
         # set explicitly, or cached from SERVER_NAME detection
         # if False, return None
         if rv is not None:
-            return rv if rv else None
+            return rv or None
 
         rv = app.config["SERVER_NAME"]
 

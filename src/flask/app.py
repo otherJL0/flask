@@ -895,11 +895,7 @@ class Flask(Scaffold):
             sn_host, _, sn_port = server_name.partition(":")
 
         if not host:
-            if sn_host:
-                host = sn_host
-            else:
-                host = "127.0.0.1"
-
+            host = sn_host or "127.0.0.1"
         if port or port == 0:
             port = int(port)
         elif sn_port:

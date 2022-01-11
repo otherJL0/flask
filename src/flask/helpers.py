@@ -281,7 +281,7 @@ def url_for(endpoint: str, **values: t.Any) -> str:
         url_adapter = reqctx.url_adapter
         blueprint_name = request.blueprint
 
-        if endpoint[:1] == ".":
+        if endpoint.startswith("."):
             if blueprint_name is not None:
                 endpoint = f"{blueprint_name}{endpoint}"
             else:
@@ -289,8 +289,6 @@ def url_for(endpoint: str, **values: t.Any) -> str:
 
         external = values.pop("_external", False)
 
-    # Otherwise go with the url adapter from the appctx and make
-    # the URLs external by default.
     else:
         url_adapter = appctx.url_adapter
 
