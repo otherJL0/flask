@@ -322,10 +322,7 @@ class DispatchingApp:
             return self._app(environ, start_response)
         self._flush_bg_loading_exception()
         with self._lock:
-            if self._app is not None:
-                rv = self._app
-            else:
-                rv = self._load_unlocked()
+            rv = self._app if self._app is not None else self._load_unlocked()
             return rv(environ, start_response)
 
 
@@ -362,20 +359,19 @@ class ScriptInfo:
 
         if self.create_app is not None:
             app = self.create_app()
+        elif self.app_import_path:
+            path, name = (
+                re.split(r":(?![\\/])", self.app_import_path, 1) + [None]
+            )[:2]
+            import_name = prepare_import(path)
+            app = locate_app(import_name, name)
         else:
-            if self.app_import_path:
-                path, name = (
-                    re.split(r":(?![\\/])", self.app_import_path, 1) + [None]
-                )[:2]
+            for path in ("wsgi.py", "app.py"):
                 import_name = prepare_import(path)
-                app = locate_app(import_name, name)
-            else:
-                for path in ("wsgi.py", "app.py"):
-                    import_name = prepare_import(path)
-                    app = locate_app(import_name, None, raise_if_not_found=False)
+                app = locate_app(import_name, None, raise_if_not_found=False)
 
-                    if app:
-                        break
+                if app:
+                    break
 
         if not app:
             raise NoAppException(
@@ -726,9 +722,8 @@ def _validate_key(ctx, param, value):
 
         ctx.params["cert"] = cert, value
 
-    else:
-        if cert and not (is_adhoc or is_context):
-            raise click.BadParameter('Required when using "--cert".', ctx, param)
+    elif cert and not is_adhoc and not is_context:
+        raise click.BadParameter('Required when using "--cert".', ctx, param)
 
     return value
 
@@ -901,7 +896,7 @@ def routes_command(sort: str, all_methods: bool) -> None:
 
     ignored_methods = set(() if all_methods else ("HEAD", "OPTIONS"))
 
-    if sort in ("endpoint", "rule"):
+    if sort in {"endpoint", "rule"}:
         rules = sorted(rules, key=attrgetter(sort))
     elif sort == "methods":
         rules = sorted(rules, key=lambda rule: sorted(rule.methods))  # type: ignore

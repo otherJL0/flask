@@ -244,8 +244,7 @@ def test_session_dynamic_cookie_name():
 
     @app.route("/get")
     def get():
-        v = flask.session.get("value", "None")
-        return v
+        return flask.session.get("value", "None")
 
     @app.route("/set_dynamic_cookie", methods=["POST"])
     def set_dynamic_cookie():
@@ -254,8 +253,7 @@ def test_session_dynamic_cookie_name():
 
     @app.route("/get_dynamic_cookie")
     def get_dynamic_cookie():
-        v = flask.session.get("value", "None")
-        return v
+        return flask.session.get("value", "None")
 
     test_client = app.test_client()
 

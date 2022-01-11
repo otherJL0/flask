@@ -64,11 +64,7 @@ def create():
     if request.method == "POST":
         title = request.form["title"]
         body = request.form["body"]
-        error = None
-
-        if not title:
-            error = "Title is required."
-
+        error = "Title is required." if not title else None
         if error is not None:
             flash(error)
         else:
@@ -92,11 +88,7 @@ def update(id):
     if request.method == "POST":
         title = request.form["title"]
         body = request.form["body"]
-        error = None
-
-        if not title:
-            error = "Title is required."
-
+        error = "Title is required." if not title else None
         if error is not None:
             flash(error)
         else:
